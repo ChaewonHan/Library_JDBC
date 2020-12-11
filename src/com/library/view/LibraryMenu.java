@@ -4,6 +4,7 @@ import java.util.Scanner;
 
 import com.library.controller.BookController;
 import com.library.controller.MemberController;
+import com.library.controller.RentController;
 
 public class LibraryMenu {
 	Scanner sc = new Scanner(System.in);
@@ -115,6 +116,7 @@ public class LibraryMenu {
 	}
 	
 	public void RentMenu() {
+		RentController rc = new RentController();
 		int num = 0;
 		while(num!=5) {
 			System.out.println("---------- 대여 메뉴 ----------");
@@ -125,15 +127,18 @@ public class LibraryMenu {
 			System.out.println("5. 메인 메뉴로 이동");
 			System.out.print("메뉴를 입력해주세요 : ");
 			num = sc.nextInt();
-			
 			switch(num) {
 			case 1:
+				rc.allListRent();
 				break;
 			case 2:
+				rc.searchIdRent();
 				break;
 			case 3:
+				rc.searchBookRent();
 				break;
 			case 4:
+				rc.updateRent();
 				break;
 			case 5:
 				System.out.println("메인 메뉴로 이동합니다.");

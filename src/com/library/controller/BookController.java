@@ -28,7 +28,6 @@ public class BookController {
 			stmt = conn.createStatement();
 			rset = stmt.executeQuery(query);
 			
-			// 컬럼의 자료형이랑 개수를 을 모를 때에는 어떻게 가져오지?
 			while(rset.next()) {
 				Book bk = new Book(rset.getInt(1),rset.getString(2),rset.getString(3),
 						rset.getInt(4), rset.getString(5), rset.getString(6));
