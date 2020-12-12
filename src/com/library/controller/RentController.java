@@ -1,6 +1,7 @@
 package com.library.controller;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -146,32 +147,64 @@ public class RentController {
 		Library lb = new Library();
 		System.out.println("---------- 대여정보 추가 ----------");
 		System.out.print("책 이름: ");
-		lb.setBook_no(sc.nextLine());
+		String bookName = sc.nextLine();
 		System.out.print("대여번호: ");
 		lb.setLease_no(sc.nextInt());
+		sc.nextLine();
 		System.out.print("회원아이디: ");
-		lb.setUser_id(sc.next());
-		System.out.println(lb.getLease_date());
+		lb.setUser_id(sc.nextLine());
+		lb.setLease_date(new java.sql.Date(new java.util.Date().getTime()));
+		lb.setReturn_date(new java.sql.Date(new java.util.Date().getTime()));
+		
+		
+		// ※ 대여정보 추가시 - 대여번호,회원아이디,책이름 을 입력시 DB에서 해당 책 이름에 따른 정보를 가지고 책번호를 가져와서 
+		// DB에 넣어져야함 (책 번호를 직접 프로그램 사용자가 넣어주면 안됨)
 		
 		Connection conn = null;
 		String query = null;
 		PreparedStatement pstmt = null;
 		ResultSet rset = null;
+		int result = 0;
 		try {
 			conn = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:XE","library","1234");
-			query = "SELECT BOOK_NO FROM LIBRARY WHERE BOOK_NAME = ?";
+			query = "SELECT BOOK_NO FROM LIBRARY NATURAL JOIN BOOK WHERE BOOK_NAME = ?";
 			pstmt = conn.prepareStatement(query);
-			pstmt.setInt(1, lb.getBook_no());
+			pstmt.setString(1, bookName);
 			rset = pstmt.executeQuery();
 			if(!rset.next()) {
 				System.out.println("조회된 책 이름이 없습니다.");
 				return;
 			}
+
+			lb.setBook_no(rset.getInt(1));
+			pstmt.close();
+			query = "INSERT INTO LIBRARY VALUES(?,?,?,?,?)";
+			pstmt = conn.prepareStatement(query);
+			pstmt.setInt(1, lb.getLease_no());
+			pstmt.setInt(2, lb.getBook_no());
+			pstmt.setString(3, lb.getUser_id());
+			pstmt.setDate(4, lb.getLease_date());
+			pstmt.setDate(5, lb.getReturn_date());
+			result = pstmt.executeUpdate();
 			
+			if(result > 0) {
+				System.out.println("대여정보가 추가되었습니다.");
+			}
+			else {
+				System.out.println("대여정보 추가를 실패하였습니다.");
+			}
 			
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
+			System.out.println("오류 발생 : 관리자에게 문의하세요.");
 			e.printStackTrace();
+		}finally {
+			try {
+				rset.close();
+				pstmt.close();
+				conn.close();
+			}catch(SQLException e) {
+				
+			}
 		}
 	}
 }
